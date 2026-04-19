@@ -140,7 +140,7 @@ class GameEngine:
             self.phil_boss_img = pygame.Surface((44, 44)); self.phil_boss_img.fill((255, 0, 255))
             self.livia_boss_img = pygame.Surface((54, 54)); self.livia_boss_img.fill((0, 255, 255))
 
-        # load audio from assets/
+        
         try:
             pygame.mixer.music.load(resource_path("assets/Do.mp3"))
             pygame.mixer.music.set_volume(0.7) 
