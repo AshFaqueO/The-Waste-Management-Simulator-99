@@ -7,7 +7,7 @@ import json
 import asyncio 
 import math 
 
-# helper to find files when packaged into an exe
+
 def resource_path(relative_path):
     try:
         base_path = sys._MEIPASS
@@ -88,7 +88,7 @@ class GameEngine:
         pygame.display.set_caption("The waste management simulator '99")
         self.clock = pygame.time.Clock()
 
-        # load backgrounds directly from assets/
+       
         try:
             bg_image_raw = pygame.image.load(resource_path("assets/sopbg.png"))
             self.bg_img_normal = pygame.transform.scale(bg_image_raw, (GAME_WIDTH + 40, GAME_HEIGHT + 40)).convert_alpha()
@@ -103,7 +103,7 @@ class GameEngine:
             self.bg_img_pine = pygame.Surface((GAME_WIDTH + 40, GAME_HEIGHT + 40))
             self.bg_img_pine.fill((200, 200, 220))
 
-        # load new title logo from assets/
+       
         try:
             logo_raw = pygame.image.load(resource_path("assets/logo.png"))
             self.logo_img = pygame.transform.scale(logo_raw, (500, 160)) 
@@ -112,7 +112,7 @@ class GameEngine:
 
         self.active_bg = self.bg_img_normal
 
-        # load sprites directly from assets/ with the safety net added back
+        
         try:
             bird_img = pygame.image.load(resource_path("assets/soprano.png"))
             self.bird_img = pygame.transform.scale(bird_img, (44, 44))
