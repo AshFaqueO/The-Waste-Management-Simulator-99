@@ -1,7 +1,3 @@
-<img width="1016" height="644" alt="image" src="https://github.com/user-attachments/assets/106c8b14-379a-4a32-879a-637a0203bb1d" /># The Waste Management Simulator '99
-
-![Main Menu]()
-
 Welcome to the ultimate Newark style flight simulator. Built in Python using Pygame. 
 
 Dodge the spinning Prozac, eat the gabagool, and whatever you do..don't look at the ducks.
@@ -33,7 +29,7 @@ Dodge the spinning Prozac, eat the gabagool, and whatever you do..don't look at 
 
 ### The Easy Way (Windows only)
 You don't need Python installed to play this.
-1. Go to the [Releases]() tab on the right side of this page.
+1. Go to the Releases.
 2. Download the latest `TWMS.99.exe` file.
 3. Run it and start dodging.
 
@@ -46,12 +42,9 @@ If you want to run the code directly:
    pip install pygame
    python main.py
 
-Built With
-Python 3.13
-Pygame
-Custom 16-bit retro pixel art and authentic audio clips sampled directly from the show The Sopranos.
 
-"Those who want respect, give respect."
+Built With Python 3.13, Pygame and custom 16-bit retro pixel art and authentic audio clips sampled directly from the show The Sopranos.
+Stay tuned for future updates. New features, mechanics, and hazards are currently in development.
 
 
 
