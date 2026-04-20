@@ -11,8 +11,8 @@ Dodge the spinning Prozac, eat the gabagool, and whatever you do..don't look at 
 
 ## Mechanics & Features
 
-* **The Core Loop:** Fly through gaps in spinning, oversized Prozac pills as the speed continuously ramps up. 
-* **Gabagool Power-Ups:** Collect the essential fuel to boost your score.
+* **The Core Loop:** Fly through gaps in spinning, oversized Prozac pills as the speed continuously goes up. 
+* **Gabagool Power Ups:** Collect the essential fuel to boost your score.
 * **The Ducks:** Hitting a duck doesn't kill you, but it triggers a 4-second, full-blown panic attack. The screen goes dark, the breathing gets heavy, and your anxiety spikes.
 * **Boss Hazards:** * Avoid the judgmental gaze of Livia.
   * Dodge Phil Leotardo to rack up your "Where's my fkn money" counter.
