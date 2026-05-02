@@ -33,7 +33,7 @@ You don't need Python installed to play this.
 2. Download the latest `TWMS.99.exe` file.
 3. Run it and start dodging.
 
-### The Developer Way (Run from source)
+
 If you want to run the code directly:
 1. Clone this repository:
    ```bash
