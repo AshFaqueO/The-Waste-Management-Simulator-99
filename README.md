@@ -4,10 +4,10 @@ Dodge the spinning Prozac, eat the gabagool, and whatever you do..don't look at 
 
 ## Gameplay
 
-
-![1](assets/Screenshot 2026-04-20 011008.png) 
-![2](assets/Screenshot 2026-04-20 011104.png) 
-
+<div align="center">
+<img src="https://github.com/AshFaqueO/The-Waste-Management-Simulator-99/blob/main/assets/Screenshot%202026-04-20%20011008.png?raw=true" width="400" />
+<img src="https://github.com/AshFaqueO/The-Waste-Management-Simulator-99/blob/main/assets/Screenshot%202026-04-20%20011104.png?raw-true" width="400" />
+</div>
 
 ## Mechanics & Features
 
