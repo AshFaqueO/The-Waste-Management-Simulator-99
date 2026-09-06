@@ -31,7 +31,7 @@ Dodge the spinning Prozac, eat the gabagool, and whatever you do..don't look at 
 You don't need Python installed to play this.
 1. Go to the Releases.
 2. Download the latest `TWMS.99.exe` file.
-3. Run it and start dodging.
+3. Run it and enjoy
 
 
 If you want to run the code directly:
