@@ -39,6 +39,8 @@ def main():
     ffmpeg = imageio_ffmpeg.get_ffmpeg_exe()
     for name in sorted(os.listdir(SRC_ASSETS)):
         src = os.path.join(SRC_ASSETS, name)
+        if name.startswith("Screenshot"):
+            continue  # README images, not used by the game
         if name.lower().endswith(".png"):
             img = Image.open(src)
             img.thumbnail(IMAGE_SIZES.get(name, DEFAULT_SPRITE_SIZE), Image.LANCZOS)
