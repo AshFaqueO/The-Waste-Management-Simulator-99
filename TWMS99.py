@@ -7,13 +7,32 @@ import json
 import asyncio 
 import math 
 
+# running in a browser via pygbag (WebAssembly)?
+IS_WEB = sys.platform == "emscripten"
+
 # helper to find files when packaged into an exe
 def resource_path(relative_path):
+    # browsers play .ogg reliably, so the web build ships ogg copies of the mp3s
+    if IS_WEB and relative_path.endswith(".mp3"):
+        relative_path = relative_path[:-4] + ".ogg"
     try:
         base_path = sys._MEIPASS
     except Exception:
-        base_path = os.path.abspath(".")
+        base_path = os.path.dirname(os.path.abspath(__file__))
     return os.path.join(base_path, relative_path)
+
+# pygame.time.set_timer doesn't work in the browser, so we run our own repeating timers
+_timers = {}  # event_type -> [interval_ms, next_fire_ms]
+
+def set_timer(event_type, interval_ms):
+    _timers[event_type] = [interval_ms, pygame.time.get_ticks() + interval_ms]
+
+def fire_timers():
+    now = pygame.time.get_ticks()
+    for event_type, timer in _timers.items():
+        if now >= timer[1]:
+            timer[1] = now + timer[0]
+            pygame.event.post(pygame.event.Event(event_type))
 
 GAME_WIDTH = 1020
 GAME_HEIGHT = 650
@@ -25,6 +44,16 @@ class DataStorage:
         self.load_data()
 
     def load_data(self):
+        if IS_WEB:
+            # browser files vanish on reload, so keep saves in localStorage
+            try:
+                import platform
+                raw = platform.window.localStorage.getItem("twms99_save")
+                if raw:
+                    self.save_data.update(json.loads(str(raw)))
+            except Exception:
+                self.save_data = self.default_save.copy()
+            return
         if os.path.exists("savegame.json"):
             with open("savegame.json", "r") as file:
                 try:
@@ -35,6 +64,13 @@ class DataStorage:
                     self.save_data = self.default_save.copy()
 
     def save_data_to_file(self):
+        if IS_WEB:
+            try:
+                import platform
+                platform.window.localStorage.setItem("twms99_save", json.dumps(self.save_data))
+            except Exception:
+                pass
+            return
         with open("savegame.json", "w") as file:
             json.dump(self.save_data, file, indent=4)
 
@@ -214,19 +250,19 @@ class GameEngine:
         self.current_phil_rate = 15000 
         
         self.create_pipes_timer = pygame.USEREVENT + 0
-        pygame.time.set_timer(self.create_pipes_timer, self.current_spawn_rate)
+        set_timer(self.create_pipes_timer, self.current_spawn_rate)
         
         self.create_gaba_timer = pygame.USEREVENT + 1
-        pygame.time.set_timer(self.create_gaba_timer, 3500)
+        set_timer(self.create_gaba_timer, 3500)
 
         self.create_duck_timer = pygame.USEREVENT + 2
-        pygame.time.set_timer(self.create_duck_timer, 10000)
+        set_timer(self.create_duck_timer, 10000)
         
         self.create_phil_timer = pygame.USEREVENT + 3
-        pygame.time.set_timer(self.create_phil_timer, self.current_phil_rate)
+        set_timer(self.create_phil_timer, self.current_phil_rate)
         
         self.create_livia_timer = pygame.USEREVENT + 4
-        pygame.time.set_timer(self.create_livia_timer, 22000) 
+        set_timer(self.create_livia_timer, 22000) 
 
     def add_score(self, amount):
         old_score = self.score
@@ -271,10 +307,10 @@ class GameEngine:
             self.current_phil_rate = 4000 
 
         if old_rate != self.current_spawn_rate:
-            pygame.time.set_timer(self.create_pipes_timer, self.current_spawn_rate)
+            set_timer(self.create_pipes_timer, self.current_spawn_rate)
             
         if old_phil_rate != self.current_phil_rate:
-            pygame.time.set_timer(self.create_phil_timer, self.current_phil_rate)
+            set_timer(self.create_phil_timer, self.current_phil_rate)
 
     def draw_text_with_outline(self, text, font, text_color, center_x, y_pos, align_left=False):
         main_text = font.render(text, True, text_color)
@@ -461,7 +497,11 @@ class GameEngine:
         font_options = pygame.font.SysFont("Arial", 35, bold=True)
         self.draw_text_with_outline("[1]: Start Game", font_options, (255, 255, 255), GAME_WIDTH/2, 300)
         self.draw_text_with_outline("[2]: High Score", font_options, (255, 255, 255), GAME_WIDTH/2, 370)
-        self.draw_text_with_outline("[3]: Quit", font_options, (255, 255, 255), GAME_WIDTH/2, 440)
+        if IS_WEB:
+            hint_font = pygame.font.SysFont("Arial", 22, bold=True)
+            self.draw_text_with_outline("Flap: SPACE / W / UP or click/tap   |   Move: A/D or arrows", hint_font, (230, 230, 230), GAME_WIDTH/2, 450)
+        else:
+            self.draw_text_with_outline("[3]: Quit", font_options, (255, 255, 255), GAME_WIDTH/2, 440)
 
     def draw_high_scores(self):
         self.window.blit(self.active_bg, (-20, -20)) 
@@ -544,6 +584,7 @@ class GameEngine:
 
     async def run(self):
         while True: 
+            fire_timers()
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     pygame.quit()
@@ -560,6 +601,21 @@ class GameEngine:
                 if event.type == self.create_livia_timer and not self.game_over and self.game_state == "playing":
                     self.create_livia()
                 
+                # mouse click / screen tap: start from menu, flap, or restart
+                if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
+                    if self.game_state == "menu":
+                        self.game_state = "playing"
+                        self.reset_game()
+                    elif self.game_state == "high_scores":
+                        self.game_state = "menu"
+                    elif self.game_state == "playing":
+                        if not self.game_over:
+                            self.velocity_y = -6
+                        elif self.shake_timer <= 0:
+                            self.reset_game()
+                            if self.game_over_sound:
+                                self.game_over_sound.stop()
+
                 if event.type == pygame.KEYDOWN:
                     if self.game_state == "menu":
                         if event.key == pygame.K_1:
@@ -567,7 +623,7 @@ class GameEngine:
                             self.reset_game()
                         elif event.key == pygame.K_2:
                             self.game_state = "high_scores"
-                        elif event.key == pygame.K_3:
+                        elif event.key == pygame.K_3 and not IS_WEB:
                             pygame.quit()
                             exit()
                     
