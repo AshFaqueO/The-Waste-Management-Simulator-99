@@ -34,6 +34,15 @@ def fire_timers():
             timer[1] = now + timer[0]
             pygame.event.post(pygame.event.Event(event_type))
 
+# creating fonts is slow, so make each one once and reuse it every frame
+_fonts = {}
+
+def get_font(name, size, bold=False):
+    key = (name, size, bold)
+    if key not in _fonts:
+        _fonts[key] = pygame.font.SysFont(name, size, bold=bold)
+    return _fonts[key]
+
 GAME_WIDTH = 1020
 GAME_HEIGHT = 650
 
@@ -119,7 +128,10 @@ class Livia(pygame.Rect):
 
 class GameEngine:
     def __init__(self):
-        pygame.init() 
+        # bigger buffer at the browser's native 48 kHz stops crackling on the web
+        if IS_WEB:
+            pygame.mixer.pre_init(48000, -16, 2, 4096)
+        pygame.init()
         self.window = pygame.display.set_mode((GAME_WIDTH, GAME_HEIGHT))
         pygame.display.set_caption("The waste management simulator '99")
         self.clock = pygame.time.Clock()
@@ -491,22 +503,22 @@ class GameEngine:
         if self.logo_img:
             self.window.blit(self.logo_img, (GAME_WIDTH/2 - self.logo_img.get_width()/2, 100))
         else:
-            font_title = pygame.font.SysFont("Comic Sans MS", 35, bold=True) 
+            font_title = get_font("Comic Sans MS", 35, bold=True) 
             self.draw_text_with_outline("The waste management simulator '99", font_title, (255, 215, 0), GAME_WIDTH/2, 130)
             
-        font_options = pygame.font.SysFont("Arial", 35, bold=True)
+        font_options = get_font("Arial", 35, bold=True)
         self.draw_text_with_outline("[1]: Start Game", font_options, (255, 255, 255), GAME_WIDTH/2, 300)
         self.draw_text_with_outline("[2]: High Score", font_options, (255, 255, 255), GAME_WIDTH/2, 370)
         if IS_WEB:
-            hint_font = pygame.font.SysFont("Arial", 22, bold=True)
+            hint_font = get_font("Arial", 22, bold=True)
             self.draw_text_with_outline("Flap: SPACE / W / UP or click/tap   |   Move: A/D or arrows", hint_font, (230, 230, 230), GAME_WIDTH/2, 450)
         else:
             self.draw_text_with_outline("[3]: Quit", font_options, (255, 255, 255), GAME_WIDTH/2, 440)
 
     def draw_high_scores(self):
         self.window.blit(self.active_bg, (-20, -20)) 
-        font_title = pygame.font.SysFont("Segoe UI", 65, bold=True) 
-        font_options = pygame.font.SysFont("Segoe UI", 45, bold=True) 
+        font_title = get_font("Segoe UI", 65, bold=True) 
+        font_options = get_font("Segoe UI", 45, bold=True) 
 
         self.draw_text_with_outline("Records", font_title, (255, 215, 0), GAME_WIDTH/2, 100)
         
@@ -569,17 +581,17 @@ class GameEngine:
             overlay.fill((0, 0, 0, alpha_value)) 
             self.window.blit(overlay, (0, 0))
         
-        text_font = pygame.font.SysFont("Segoe UI", 50, bold=True)
+        text_font = get_font("Segoe UI", 50, bold=True)
 
         if self.game_over:
             if self.shake_timer <= 0:
                 self.draw_text_with_outline(f"Game over: {int(self.score)}", text_font, (255, 80, 80), GAME_WIDTH/2, GAME_HEIGHT/2 - 50)
-                menu_font = pygame.font.SysFont("Segoe UI", 30, bold=True)
+                menu_font = get_font("Segoe UI", 30, bold=True)
                 self.draw_text_with_outline("Press 'R' or ENTER to Restart", menu_font, (255, 255, 255), GAME_WIDTH/2, GAME_HEIGHT/2 + 15)
                 self.draw_text_with_outline("Press ESC for Menu", menu_font, (200, 200, 200), GAME_WIDTH/2, GAME_HEIGHT/2 + 55)
         else:
             hud_text = f"score: {int(self.score)}  |  Where's my fkn money counter: {self.phil_score}"
-            hud_font = pygame.font.SysFont("Segoe UI", 30, bold=True)
+            hud_font = get_font("Segoe UI", 30, bold=True)
             self.draw_text_with_outline(hud_text, hud_font, (255, 255, 255), 15, 5, align_left=True)
 
     async def run(self):

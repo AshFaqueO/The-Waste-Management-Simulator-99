@@ -45,11 +45,10 @@ def main():
             img.save(os.path.join(OUT_ASSETS, name), optimize=True)
         elif name.lower().endswith(".mp3"):
             dst = os.path.join(OUT_ASSETS, name[:-4] + ".ogg")
-            # the long music track gets a lower bitrate to keep the download small
-            quality = "2" if name == "Do.mp3" else "4"
+            # 48 kHz matches the browser's audio rate (the game opens the mixer at 48 kHz on web)
             subprocess.run(
                 [ffmpeg, "-y", "-loglevel", "error", "-i", src,
-                 "-c:a", "libvorbis", "-q:a", quality, "-ar", "44100", dst],
+                 "-c:a", "libvorbis", "-q:a", "4", "-ar", "48000", dst],
                 check=True,
             )
 
